@@ -6,17 +6,32 @@ class Controller_User extends Controller_Template {
         
 	public function action_index()
 	{
-            $users = ORM::factory('User')->find_all();
+            $users = ORM::factory( 'Member' )->find_all();
             View::set_global( "users", $users );
 	}
         
-        public function action_edit()
+        public function action_save()
         {
-            $this->template = 'user/edit';
-            parent::before();
-            $user_id = ( int ) $this->request->param( 'id' );
-            $user = ORM::factory( 'User', $user_id );
-            View::set_global( "user", $user );
+            if( $this->request->is_ajax() ){
+                $this->auto_render = false;
+                $user_data = $this->request->query( "user" );
+                $user_id = !empty( $user_data[ "id" ] ) ? ( int ) $user_data[ "id" ] : NULL;
+                unset( $user_data[ "id" ] );
+                $user = ORM::factory( 'Member', $user_id );
+                foreach ( $user_data as $field_name => $field_value ){
+                    if( in_array( $field_name, array_keys( $user->list_columns() ) ) ){
+                        $user->set( $field_name, $field_value );
+                    }
+                }
+                
+                $user->recalculatePersonalCode();
+                if( $user->changed() && $user->check() ){
+                    $user->save();
+                }
+                
+                $this->response->headers( sprintf( 'Content-type','application/json; charset=%s', Kohana::$charset ) );
+                $this->response->body( json_encode( array( "success" => $user->saved(), "user" => $user->as_array() ) ) );
+            }
         }
 
 } // End User
