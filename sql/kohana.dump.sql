@@ -36,3 +36,34 @@ CREATE TRIGGER set_update_action_time
 CREATE VIEW v_members AS
     SELECT *
     FROM users;
+
+CREATE OR REPLACE FUNCTION save_user(IN user_id integer, IN user_name varchar(50), IN user_surname varchar(50), IN user_email varchar(100), 
+IN user_personal_code varchar(32), IN user_address varchar(100), IN user_country varchar(30), IN user_city varchar(30), 
+OUT record_id integer) RETURNS integer AS
+$BODY$BEGIN
+    record_id:=user_id;
+
+    IF length(user_personal_code)=0 THEN
+        user_personal_code:=MD5(CONCAT_WS('-', user_name, user_surname, user_email, user_address, user_country, user_city));
+    END IF;
+
+    IF record_id=0 THEN
+        INSERT INTO users (name, surname, email, personal_code, address, country, city) VALUES (user_name, user_surname, user_email, user_personal_code, user_address, user_country, user_city);
+
+        EXECUTE 'SELECT LASTVAL()'
+        INTO record_id;
+    ELSE
+        UPDATE users SET name=user_name, surname=user_surname, email=user_email, personal_code=user_personal_code, address=user_address, country=user_country, city=user_city WHERE id=record_id;
+    END IF;
+END;$BODY$
+LANGUAGE plpgsql VOLATILE NOT LEAKPROOF;
+COMMENT ON FUNCTION public.save_user(IN integer, IN varchar(50), IN varchar(50), IN varchar(100), IN varchar(32), IN varchar(100), IN varchar(30), IN varchar(30), OUT integer) IS 'Saves user with given data';
+
+CREATE OR REPLACE FUNCTION delete_user(IN user_id integer) RETURNS void AS
+$BODY$BEGIN
+    IF user_id<>0 THEN
+        DELETE FROM users WHERE id=user_id;
+    END IF;
+END;$BODY$
+LANGUAGE plpgsql VOLATILE NOT LEAKPROOF;
+COMMENT ON FUNCTION public.delete_user(IN integer) IS 'Deletes user by given id';

@@ -29,6 +29,7 @@ class Model_Member extends ORM {
                 array('min_length', array(':value', 4)),
                 array('max_length', array(':value', 100)),
                 array('email'),
+                array(array($this, 'isUniqueEmail')),
             ),
             'personal_code' => array(
                 array('not_empty'),
@@ -53,6 +54,15 @@ class Model_Member extends ORM {
         );
     }
     
+    public function isUniqueEmail( $email )
+    {
+        return ! (bool) DB::select(array(DB::expr('COUNT(id)'), 'total'))
+            ->from($this->_table_name)
+            ->where('email', '=', $email)
+            ->execute()
+            ->get('total');
+    }
+
     public function recalculatePersonalCode()
     {
         $personal_code = md5( implode( "-", array( $this->name, $this->surname, 
@@ -60,4 +70,31 @@ class Model_Member extends ORM {
         $this->set( "personal_code", $personal_code );
     }
     
+    public function saveMemberData()
+    {
+        $query = DB::query( Database::SELECT, 'SELECT save_user(:id,:name,:surname,:email,:pcode,:address,:country,:city)');
+        $query->parameters(array(
+            ":id" => ( int ) $this->id,
+            ":name" => $this->name,
+            ":surname" => $this->surname,
+            ":email" => $this->email,
+            ":pcode" => $this->personal_code,
+            ":address" => $this->address,
+            ":country" => $this->country,
+            ":city" => $this->city
+        ));
+        
+        $user_id = ( int ) $query->execute()->get( "save_user" );
+        
+        if( !empty( $user_id ) ){
+            $this->set( 'id', $user_id );
+        }
+    }
+    
+    public function deleteUserData()
+    {
+        $query = DB::query( Database::SELECT, 'SELECT delete_user(:id)');
+        $query->parameters( array( ":id" => ( int ) $this->id ) );
+        $query->execute();
+    }
 }
