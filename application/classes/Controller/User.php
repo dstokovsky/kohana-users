@@ -23,7 +23,7 @@ class Controller_User extends Controller_Template {
                 $user = ORM::factory( 'Member', $user_id );
                 foreach ( $user_data as $field_name => $field_value ){
                     if( in_array( $field_name, array_keys( $user->list_columns() ) ) ){
-                        $user->set( $field_name, $field_value );
+                        $user->set( $field_name, trim( strip_tags( $field_value ) ) );
                     }
                 }
                 

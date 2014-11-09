@@ -77,7 +77,7 @@ $(document).ready(function() {
                     $( "input#user_address" ).val( data.user.address );
                     $( "input#user_country" ).val( data.user.country );
                     $( "input#user_city" ).val( data.user.city );
-                    $( "div.container h1.page-header" ).text( "User " + data.user.email + " Edit Page" );
+                    $( "div.container h1.page-header" ).text( "User #" + data.user.id + " Edit Page" );
                 }else{
                     $( "div.alert-danger" ).append( data.error + "<br />" );
                     $( "div.alert-danger" ).show();
@@ -182,12 +182,13 @@ $(document).ready(function() {
         },
         submitHandler: function ( form ){
             var user_id = $( form ).find( "#user_id" ).val();
+            $( "div.alert-danger" ).hide();
+            $( "div.alert-danger" ).text( "" );
+            $( "div.alert-success" ).hide();
             $.getJSON('/user/save', $( form ).serialize(), function( data ){
                 if( data.success ){
-                    $( "div.alert-danger" ).html( "" );
-                    $( "div.alert-danger" ).hide();
-                    $( "div.container h1.page-header" ).text( "User " + data.user.email + " Edit Page" );
-                    $( "div.alert-success" ).text( "Successfully added." );
+                    $( "div.container h1.page-header" ).text( "User #" + data.user.id + " Edit Page" );
+                    $( "div.alert-success" ).text( "Successfully saved." );
                     $( "div.alert-success" ).show();
                     $( "input#user_id" ).val( data.user.id );
                     if( !user_id ){
@@ -221,7 +222,6 @@ $(document).ready(function() {
                     }
                     $("#usersTable").trigger( 'update' );
                 }else{
-                    $( "div.alert-danger" ).html( "" );
                     if( data.errors ){
                         for( var index in data.errors ){
                             $( "div.alert-danger" ).append( data.errors[ index ] + "<br/>" );

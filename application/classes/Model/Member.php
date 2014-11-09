@@ -50,7 +50,7 @@ class Model_Member extends ORM {
             ),
             'address' => array(
                 array('max_length', array(':value', 100)),
-                array('regex', array(':value', '/[\w\-\.\,]+/uD')),
+                array(array($this, 'isValidAddress')),
             ),
             'country' => array(
                 array('not_empty'),
@@ -79,6 +79,12 @@ class Model_Member extends ORM {
             ->where( $this->_primary_key, '!=', $this->pk() )
             ->execute()
             ->get( 'total' );
+    }
+    
+    
+    public function isValidAddress( $address )
+    {
+        return ! ( bool ) preg_match( '/[^\ \.,a-z0-9_\-]+/i', $address );
     }
 
     /**

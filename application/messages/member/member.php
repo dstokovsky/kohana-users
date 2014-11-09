@@ -27,7 +27,7 @@ return array(
     ),
     'address' => array(
         'max_length' => 'Maximum length of address are 100 characters',
-        'regex' => 'Address should contain only alphanumerical, underscore, hyphen, point or comma characters',
+        'isValidAddress' => 'Address should contain only alphanumerical, underscore, hyphen, point or comma characters',
     ),
     'country' => array(
         'not_empty' => 'Country could not be empty',
