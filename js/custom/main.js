@@ -79,8 +79,8 @@ $(document).ready(function() {
                     $( "input#user_city" ).val( data.user.city );
                     $( "div.container h1.page-header" ).text( "User " + data.user.email + " Edit Page" );
                 }else{
-                    $( "ul.errorContainer" ).append("<li>" + data.error + "</li>");
-                    $( "ul.errorContainer" ).show();
+                    $( "div.alert-danger" ).append( data.error + "<br />" );
+                    $( "div.alert-danger" ).show();
                 }
             });
         }else{
@@ -118,7 +118,7 @@ $(document).ready(function() {
         $( "div.container h1.page-header" ).text( "" );
         $( "div.row" ).show();
         $( "div.container" ).hide();
-        $( "ul.errorContainer" ).hide();
+        $( "div.alert-danger" ).hide();
         $( "div.alert-success" ).hide();
         return false;
     }
@@ -181,9 +181,11 @@ $(document).ready(function() {
             }
         },
         submitHandler: function ( form ){
-            var user_id = $( form ).find( "#user_id" );
+            var user_id = $( form ).find( "#user_id" ).val();
             $.getJSON('/user/save', $( form ).serialize(), function( data ){
                 if( data.success ){
+                    $( "div.alert-danger" ).html( "" );
+                    $( "div.alert-danger" ).hide();
                     $( "div.container h1.page-header" ).text( "User " + data.user.email + " Edit Page" );
                     $( "div.alert-success" ).text( "Successfully added." );
                     $( "div.alert-success" ).show();
@@ -218,6 +220,14 @@ $(document).ready(function() {
                             "</td>" );
                     }
                     $("#usersTable").trigger( 'update' );
+                }else{
+                    $( "div.alert-danger" ).html( "" );
+                    if( data.errors ){
+                        for( var index in data.errors ){
+                            $( "div.alert-danger" ).append( data.errors[ index ] + "<br/>" );
+                        }
+                        $( "div.alert-danger" ).show();
+                    }
                 }
             });
             return false;

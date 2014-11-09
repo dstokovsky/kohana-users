@@ -93,13 +93,13 @@
             <p>
                 <a class="btn btn-default backButton" role="button" href="#">« Back</a>
             </p>
-            <ul class="errorContainer" style="display: none;">
-            </ul>
+            <div class="alert-danger" style="display: none;">
+            </div>
             <div class="alert-success" style="display: none;">
             </div>
             <form id="userEditForm" class="form-actions" role="form">
                 <h1 class="page-header"></h1>
-                <input id="user_id" type="hidden" name="user[id]" value="{user_id}" />
+                <input id="user_id" type="hidden" name="user[id]" value="" />
                 <input id="user_name" class="form-control" type="text" name="user[name]" autofocus="" required="" maxlength="50" placeholder="First Name" />
                 <input id="user_surname" class="form-control" type="text" name="user[surname]" autofocus="" required="" maxlength="50" placeholder="Second Name" />
                 <input id="user_email" class="form-control" type="email" name="user[email]" autofocus="" required="" maxlength="100" placeholder="Email" />

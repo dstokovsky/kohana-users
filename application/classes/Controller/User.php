@@ -12,8 +12,10 @@ class Controller_User extends Controller_Template {
         
         public function action_save()
         {
+            $this->auto_render = false;
+            $headers = sprintf( 'Content-type','application/json; charset=%s', Kohana::$charset );
+            $body = json_encode( array( 'success' => true, 'user' => [], 'errors' => [ 'Available only via ajax requests.' ] ) );
             if( $this->request->is_ajax() ){
-                $this->auto_render = false;
                 $user_data = $this->request->query( 'user' );
                 $user_id = !empty( $user_data[ 'id' ] ) ? ( int ) $user_data[ 'id' ] : NULL;
                 unset( $user_data[ 'id' ] );
@@ -26,50 +28,62 @@ class Controller_User extends Controller_Template {
                 }
                 
                 $user->recalculatePersonalCode();
-                if( $user->changed() ){
-                    $user->saveMemberData();
+                $errors = [];
+                try{
+                    if( $user->changed() && $user->check() ){
+                        $user->saveMemberData();
+                    }
+                } catch ( ORM_Validation_Exception $e ){
+                    $errors = array_values( $e->errors( 'member' ) );
                 }
                 
-                $this->response->headers( sprintf( 'Content-type','application/json; charset=%s', Kohana::$charset ) );
-                $this->response->body( json_encode( array( 'success' => true, 'user' => $user->as_array(), 
-                    'errors' => [] ) ) );
+                $body = json_encode( array( 'success' => empty( $errors ), 'user' => $user->as_array(), 'errors' => $errors ) );
             }
+            
+            $this->response->headers( $headers );
+            $this->response->body( $body );
         }
         
         public function action_get()
 	{
+            $this->auto_render = false;
+            $headers = sprintf( 'Content-type','application/json; charset=%s', Kohana::$charset );
+            $body = json_encode( array( 'success' => false, 'user' => [], "error" => 'Available only via ajax requests.' ) );
             if( $this->request->is_ajax() ){
-                $this->auto_render = false;
                 $user_id = ( int ) $this->request->query( 'id' );
                 $user = ORM::factory( 'Member', $user_id );
-                $success = true;
+                $success = $user->loaded();
                 $error = '';
-                if( empty( $user ) ){
-                    $success = false;
+                if( !$user->loaded() ){
                     $error = 'User does not exist';
                 }
-                $this->response->headers( sprintf( 'Content-type','application/json; charset=%s', Kohana::$charset ) );
-                $this->response->body( json_encode( array( 'success' => $success, 'user' => $user->as_array(), 
-                    'error' => $error ) ) );
+                
+                $body = json_encode( array( 'success' => $success, 'user' => $user->as_array(), 'error' => $error ) );
             }
+            $this->response->headers( $headers );
+            $this->response->body( $body );
 	}
         
         public function action_delete()
 	{
+            $this->auto_render = false;
+            $headers = sprintf( 'Content-type','application/json; charset=%s', Kohana::$charset );
+            $body = json_encode( array( 'success' => false, 'user_id' => 0, "error" => 'Available only via ajax requests.' ) );
             if( $this->request->is_ajax() ){
-                $this->auto_render = false;
                 $user_id = ( int ) $this->request->query( 'id' );
                 $user = ORM::factory( 'Member', $user_id );
-                $user->deleteUserData();
-                $success = true;
+                $success = $user->loaded();
                 $error = "";
-                if( empty( $user_id ) || empty( $user->id ) ){
-                    $success = false;
+                if( !$user->loaded() ){
                     $error = "User does not exist.";
                 }
-                $this->response->headers( sprintf( 'Content-type','application/json; charset=%s', Kohana::$charset ) );
-                $this->response->body( json_encode( array( 'success' => $success, 'user_id' => $user_id, "error" => $error ) ) );
+                $user->deleteUserData();
+                
+                $body = json_encode( array( 'success' => $success, 'user_id' => $user_id, "error" => $error ) );
             }
+            
+            $this->response->headers( $headers );
+            $this->response->body( $body );
 	}
 
 } // End User
