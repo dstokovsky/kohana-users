@@ -93,7 +93,7 @@ $(document).ready(function() {
     
     function deleteUser(){
         var user_id = $( this ).attr( "data" );
-        if( user_id ){
+        if( user_id && confirm("Are you sure you want to delete user #" + user_id + "?") ){
             $( "tr#user_" + user_id ).hide( "slow" );
             $.getJSON('/user/delete', { id: user_id }, function( data ){
                 if( data.success ){
