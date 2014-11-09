@@ -2,6 +2,5 @@ application/cache/*
 application/logs/*
 nbproject
 vendor
-.htaccess
 .svn
 .tmp_index.html.55071~

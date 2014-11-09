@@ -35,6 +35,8 @@ class Controller_User extends Controller_Template {
                     }
                 } catch ( ORM_Validation_Exception $e ){
                     $errors = array_values( $e->errors( 'member' ) );
+                } catch ( Database_Exception $e ){
+                    $errors[] = $e->getMessage();
                 }
                 
                 $body = json_encode( array( 'success' => empty( $errors ), 'user' => $user->as_array(), 'errors' => $errors ) );

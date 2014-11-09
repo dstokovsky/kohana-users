@@ -22,8 +22,8 @@ return array(
     ),
     'personal_code' => array(
         'not_empty' => 'Personal code could not be empty',
-        'exact_length' => 'Personal code length should be exact 32 characters',
-        'alpha_numeric' => 'Name should contain only alphabetical with hyphens',
+        'exact_length' => 'Personal code length should be exactly 32 characters',
+        'alpha_numeric' => 'Personal code should contain only alphabetical with hyphens',
     ),
     'address' => array(
         'max_length' => 'Maximum length of address are 100 characters',
